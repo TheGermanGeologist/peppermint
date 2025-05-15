@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ParticleSurfaces C)
+project(peppermint C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -33,13 +33,5 @@ target_include_directories(particle_lib
 
 
 # Main executable
-add_executable(ParticleSurfaces app/main.c) # Changed from src/main.c
-target_link_libraries(ParticleSurfaces PUBLIC particle_lib)
-
-enable_testing()
-
-add_executable(RunTests tests/main_test.c)
-target_link_libraries(RunTests PRIVATE particle_lib) # Added link to particle_lib
-
-# If using a test framework like CTest, you might add tests like this:
-# add_test(NAME MyParticleTest COMMAND RunTests)
+add_executable(peppermint app/main.c) # Changed from src/main.c
+target_link_libraries(peppermint PUBLIC particle_lib)
