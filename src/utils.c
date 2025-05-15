@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <stdio.h>
+
 
 void* allocate_vector(int length, size_t element_size)
 {
@@ -53,4 +55,26 @@ void free_2D_array(void** array, int rows)
 
 	free(array);
 	array = NULL;
+}
+
+
+
+void print_array_range(float* array, int i_start, int i_end)
+{
+	for (int i = i_start; i <= i_end; i++)
+		printf("%f ",array[i]);
+	
+	printf("\n");
+	
+	return;
+}
+
+void print_array(float* array, size_t length)
+{
+	for (size_t i = 0; i < length; i++)
+		printf("%f ",array[i]);
+	
+	printf("\n");
+	
+	return;
 }
