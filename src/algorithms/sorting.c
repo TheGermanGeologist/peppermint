@@ -1,17 +1,9 @@
 #include "algorithms/sorting.h"
+#include "data_structures/heap.h"
 #include "utils.h"
 
 // for iterative_qsort, probably still quite conservative
 #define STACK_THRESHOLD 100000
-
-
-static inline void swap_values(float* value1, float* value2)
-{
-	float swap = *value1;
-	*value1 = *value2;
-	*value2 = swap;
-}
-
 
 
 void recursive_qsort(float* array, int i_start, int i_end)
@@ -68,8 +60,6 @@ void recursive_qsort(float* array, int i_start, int i_end)
 }
 
 
-
-
 void iterative_qsort(float* array, size_t length)
 {
 	int* stack = NULL;
@@ -117,7 +107,7 @@ void iterative_qsort(float* array, size_t length)
 
 			if (i_from_left > i_from_right)
 				break;
-				
+
 			swap_values(&array[i_from_left], &array[i_from_right]);
 		}
 
@@ -179,8 +169,20 @@ void insertion_sort(float* array, size_t length)
 
 
 
+void heapsort(float* array, size_t length)
+{
+	// first, build max heap
 
+	heapify(array, first_parent(length), length);
 
-inline static int left_node		(int i) { return 2*i + 1; }
-inline static int right_node	(int i) { return 2*i + 2; }
-inline static int parent_node	(int i) { return (i-1)/2; }
+	int heap_size = length;
+	// now recursively extract the root, swap back, reduce heap_size and downsift root
+
+	while (heap_size > 1)
+	{
+		swap_values(array, array+(heap_size-1));
+		heap_size--;
+		downsift(array, 0, heap_size);
+	}
+
+}

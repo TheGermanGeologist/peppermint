@@ -7,7 +7,7 @@ Given a point cloud representing fragments:
 - extract surfaces from each fragment
 - mesh these surfaces with a suitable triangulation method
 - have a basic mock simulation of fragment travel and break up
-- implement an alogrithm which efficiently updates the:
+- implement an algorithm which efficiently updates the:
     - fragment list (particle / fragment membership)
 	- surface mesh (node positions)
 	- surface topology

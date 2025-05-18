@@ -16,3 +16,12 @@ void free_2D_array(void** array, int rows);
 void print_array_range(float* array, int i_start, int i_end);
 
 void print_array(float* array, size_t length);
+
+
+
+static inline void swap_values(float* value1, float* value2)
+{
+	float swap = *value1;
+	*value1 = *value2;
+	*value2 = swap;
+}

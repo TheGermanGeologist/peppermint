@@ -7,13 +7,20 @@
 
 int main()
 {
+	// check particle structs
+	printf("Size of Continuum Particle: %zi\n",sizeof(ContinuumParticleDummy));
+	printf("Size of Discrete Particle: %zi\n",sizeof(DiscreteParticleDummy));
+
+
 	// test array on the stack
 
 	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
 
 	//recursive_qsort(test_array,0,14);
 	//insertion_sort(test_array,15);
-	iterative_qsort(test_array,15);
+	//iterative_qsort(test_array,15);
+
+	heapsort(test_array,15);
 
 	printf("done sorting\n");
 
