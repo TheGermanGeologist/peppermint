@@ -25,3 +25,10 @@ static inline void swap_values(float* value1, float* value2)
 	*value1 = *value2;
 	*value2 = swap;
 }
+
+
+inline void init_rng(unsigned int seed) { srand(seed); }
+
+int get_rand_int(int range_min, int range_max);
+int get_rand_int_mod(int range_min, int range_max);
+float get_rand_float(float range_min, float range_max);

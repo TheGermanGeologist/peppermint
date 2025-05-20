@@ -7,6 +7,8 @@
 
 int main()
 {
+	init_rng(time(NULL));
+	
 	// check particle structs
 	printf("Size of Continuum Particle: %zi\n",sizeof(ContinuumParticleDummy));
 	printf("Size of Discrete Particle: %zi\n",sizeof(DiscreteParticleDummy));
@@ -26,6 +28,59 @@ int main()
 
 	//print_array_range(test_array,0,14);
 	print_array(test_array,15);
+
+	// test rng
+	for (size_t i = 0; i < 3000; i++)
+	{
+		int val = get_rand_int(-5, 5);
+		if (val == 5)
+			printf("%i ",val);
+	}
+	printf("\n\n");
+	for (size_t i = 0; i < 100; i++)
+	{
+		printf("%f ",get_rand_float(0.0, 3.0));
+	}
+	printf("\n\n");
+
+
+	int bins[11];
+	for (size_t i = 0; i < 11; i++)
+	{
+		bins[i] = 0;
+	}
+
+	for (size_t i = 0; i < 100000; i++)
+	{
+		bins[5+get_rand_int_mod(-5,5)] += 1;
+	}
+	
+	int max = -10000000;
+	for (size_t i = 0; i < 11; i++)
+	{
+		if (bins[i] > max)
+			max = bins[i];
+	}
+
+	// bin length: 30
+	for (size_t i = 0; i < 11; i++)
+	{
+		bins[i] = bins[i] * 30 / max;
+	}
+
+	for (size_t i = 0; i < 11; i++)
+	{
+		if(-5+(int)i >= 0)
+			printf(" ");
+		printf("%zi: ",-5+i);
+		for (size_t j = 0; j < bins[i]; j++)
+		{
+			printf("#");
+		}
+		printf("\n");
+	}
+	
+
 
 	//float* test_array = (float*)allocate_vector(15,sizeof(float));
 
