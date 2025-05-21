@@ -19,4 +19,6 @@ void insertion_sort(float* array, size_t length);
 
 void heap_sort(float* array, size_t length);
 
+// Adaptive sorting
 
+void adapt_sort(float* array, size_t length);

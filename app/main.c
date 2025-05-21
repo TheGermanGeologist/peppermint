@@ -1,4 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <memory.h>
+
+#include <windows.h> // for timings
+
 #include "particle.h"
 #include "utils.h"
 #include "algorithms/sorting.h"
@@ -7,7 +12,7 @@
 
 int main()
 {
-	init_rng(time(NULL));
+	init_rng((int)time(NULL));
 	
 	// check particle structs
 	printf("Size of Continuum Particle: %zi\n",sizeof(ContinuumParticleDummy));
@@ -18,16 +23,197 @@ int main()
 
 	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
 
-	//recursive_qsort(test_array,0,14);
-	//insertion_sort(test_array,15);
-	//iterative_qsort(test_array,15);
-
-	heapsort(test_array,15);
-
+	recursive_qsort(test_array,0,14);
 	printf("done sorting\n");
-
-	//print_array_range(test_array,0,14);
 	print_array(test_array,15);
+
+	LARGE_INTEGER freq, t_start, t_end;
+    QueryPerformanceFrequency(&freq);
+
+	double qsort_time, insersort_time, heapsort_time, recursivesort_time, iterativesort_time, adaptsort_time;
+	qsort_time = insersort_time = heapsort_time = recursivesort_time = iterativesort_time = adaptsort_time = 0.0;
+	
+	int N = 1000;
+	int array_size = 10000;
+	for (int kk= 0; kk < N; kk++)
+	{
+		float* large_array = allocate_vector(array_size, sizeof(float));
+		float* large_array2 = allocate_vector(array_size, sizeof(float));
+		float* large_array3 = allocate_vector(array_size, sizeof(float));
+		float* large_array4 = allocate_vector(array_size, sizeof(float));
+		float* large_array5 = allocate_vector(array_size, sizeof(float));
+		float* large_array6 = allocate_vector(array_size, sizeof(float));
+		float* large_array_static = allocate_vector(array_size, sizeof(float));
+
+		for (size_t i = 0; i < array_size; i++)
+		{
+			large_array[i] = get_rand_float(-100.0, 100.0);
+		}
+		memcpy(large_array2, large_array, array_size * sizeof(float));
+		memcpy(large_array3, large_array, array_size * sizeof(float));
+		memcpy(large_array4, large_array, array_size * sizeof(float));
+		memcpy(large_array5, large_array, array_size * sizeof(float));
+		memcpy(large_array6, large_array, array_size * sizeof(float));
+		memcpy(large_array_static, large_array, array_size * sizeof(float));
+		check_array_identity(large_array, large_array2, array_size);
+
+		
+
+		double elapsed_time;
+
+		QueryPerformanceCounter(&t_start);
+		qsort(large_array, array_size, sizeof(float), cmpfunc);
+		QueryPerformanceCounter(&t_end);
+
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		qsort_time += elapsed_time;
+		printf("Sorted using std qsort in %.6f us\n", elapsed_time);
+		//printf("Sorted using std qsort in: %f ms\n", elapsed_time);
+
+		if (check_sorting(large_array, array_size))
+		{
+			printf("Error: std qsort not sorted\n");
+			printf("This was the input array:\n");
+			print_array(large_array_static, array_size);
+			break;
+		}
+
+
+		QueryPerformanceCounter(&t_start);
+		heap_sort(large_array3, array_size);
+		QueryPerformanceCounter(&t_end);
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		heapsort_time += elapsed_time;
+		printf("Sorted using heap_sort in %.6f us\n", elapsed_time);
+		//printf("Sorted using heap_sort in: %f ms\n", elapsed_time);
+
+		check_sorting(large_array3, array_size);
+
+		QueryPerformanceCounter(&t_start);
+		insertion_sort(large_array4, array_size);
+		QueryPerformanceCounter(&t_end);
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		insersort_time += elapsed_time;
+		printf("Sorted using insertion_sort in %.6f us\n", elapsed_time);
+		//printf("Sorted using insertion_sort in: %f ms\n", elapsed_time);
+
+		check_sorting(large_array4, array_size);
+
+		QueryPerformanceCounter(&t_start);
+		recursive_qsort(large_array6, 0, array_size - 1);
+		QueryPerformanceCounter(&t_end);
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		recursivesort_time += elapsed_time;
+		printf("Sorted using recursive_qsort in %.6f us\n", elapsed_time);
+		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+
+		if (check_sorting(large_array6, array_size))
+		{
+			printf("Error: recursive_qsort not sorted\n");
+			printf("This was the input array:\n");
+			print_array(large_array_static, array_size);
+			printf("This is the array sorted by qsort:\n");
+			print_array(large_array, array_size);
+			printf("This is the array sorted by recursive_qsort:\n");
+			print_array(large_array6, array_size);
+			break;
+		}
+
+		QueryPerformanceCounter(&t_start);
+		iterative_qsort(large_array2, array_size);
+		QueryPerformanceCounter(&t_end);
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		iterativesort_time += elapsed_time;
+		printf("Sorted using iterative_qsort in %.6f us\n", elapsed_time);
+		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+
+		if (check_sorting(large_array2, array_size))
+		{
+			printf("Error: iterative_qsort not sorted\n");
+			printf("This was the input array:\n");
+			print_array(large_array_static, array_size);
+			printf("This is the array sorted by qsort:\n");
+			print_array(large_array, array_size);
+			printf("This is the array sorted by iterative_qsort:\n");
+			print_array(large_array2, array_size);
+			break;
+		}
+
+		QueryPerformanceCounter(&t_start);
+		adapt_sort(large_array2, array_size);
+		QueryPerformanceCounter(&t_end);
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		adaptsort_time += elapsed_time;
+		printf("Sorted using adapt_sort in %.6f us\n", elapsed_time);
+		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+
+		if (check_sorting(large_array2, array_size))
+		{
+			printf("Error: adapt_sort not sorted\n");
+			printf("This was the input array:\n");
+			print_array(large_array_static, array_size);
+			printf("This is the array sorted by qsort:\n");
+			print_array(large_array, array_size);
+			printf("This is the array sorted by adapt_sort:\n");
+			print_array(large_array2, array_size);
+			break;
+		}
+	}
+
+	printf("\n\nAverage sorting times for l = %i, N = %i:\n",array_size,N);
+	printf("\t Std qsort:\t\t %.3f us\n", qsort_time/N);
+	printf("\t Insertion sort:\t %.3f us\n", insersort_time/N);
+	printf("\t Heap sort:\t\t %.3f us\n", heapsort_time/N);
+	printf("\t Recursive qsort:\t %.3f us\n", recursivesort_time/N);
+	printf("\t Iterative qsort:\t %.3f us\n", iterativesort_time/N);
+	printf("\t Adaptive sort:\t\t %.3f us\n", adaptsort_time/N);
+
+	return 0;
+}
+
+
+// OLD TESTS
+/*
+	Particle p = {1.0, 2.0, 3.0, 0.1};
+	printf("Particle position: (%f, %f, %f)\n", p.x, p.y, p.z);
+	printf("Particle radius: %f\n", p.radius);
+
+
+	// test array alloaction for particles
+
+	clock_t t_start, t_end;
+	double elapsed_time;
+
+	int rows = 1200;
+	int columns = 700;
+
+	t_start = clock();
+
+	Particle** particle_array = (Particle**)allocate_2D_array(rows, columns, sizeof(Particle));
+
+	t_end = clock();
+	elapsed_time = (double)t_end - (double)t_start;
+	elapsed_time /= CLOCKS_PER_SEC;
+
+	printf("Time to allocate memory for n=%i particles: %f\n",rows*columns,elapsed_time);
+
+	t_start = clock();
+	for (int ii = 0; ii < rows; ii++)
+	{
+		for (int jj = 0; jj < columns; jj++)
+		{
+			particle_array[ii][jj] = (Particle){1.0, 2.0, 3.0, 0.1};
+		}
+		
+	}
+	t_end = clock();
+	elapsed_time = (double)t_end - (double)t_start;
+	elapsed_time /= CLOCKS_PER_SEC;
+
+	printf("Time to fill array with n=%i particles: %f\n",rows*columns,elapsed_time);
+
+	printf("%f",particle_array[5][3].radius);
+	free_2D_array((void**)particle_array,rows);
 
 	// test rng
 	for (size_t i = 0; i < 3000; i++)
@@ -83,53 +269,5 @@ int main()
 
 
 	//float* test_array = (float*)allocate_vector(15,sizeof(float));
-
-
-	return 0;
-}
-
-
-// OLD TESTS
-/*
-	Particle p = {1.0, 2.0, 3.0, 0.1};
-	printf("Particle position: (%f, %f, %f)\n", p.x, p.y, p.z);
-	printf("Particle radius: %f\n", p.radius);
-
-
-	// test array alloaction for particles
-
-	clock_t t_start, t_end;
-	double elapsed_time;
-
-	int rows = 1200;
-	int columns = 700;
-
-	t_start = clock();
-
-	Particle** particle_array = (Particle**)allocate_2D_array(rows, columns, sizeof(Particle));
-
-	t_end = clock();
-	elapsed_time = (double)t_end - (double)t_start;
-	elapsed_time /= CLOCKS_PER_SEC;
-
-	printf("Time to allocate memory for n=%i particles: %f\n",rows*columns,elapsed_time);
-
-	t_start = clock();
-	for (int ii = 0; ii < rows; ii++)
-	{
-		for (int jj = 0; jj < columns; jj++)
-		{
-			particle_array[ii][jj] = (Particle){1.0, 2.0, 3.0, 0.1};
-		}
-		
-	}
-	t_end = clock();
-	elapsed_time = (double)t_end - (double)t_start;
-	elapsed_time /= CLOCKS_PER_SEC;
-
-	printf("Time to fill array with n=%i particles: %f\n",rows*columns,elapsed_time);
-
-	printf("%f",particle_array[5][3].radius);
-	free_2D_array((void**)particle_array,rows);
 
 */

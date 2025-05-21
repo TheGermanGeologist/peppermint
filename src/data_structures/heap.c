@@ -51,7 +51,7 @@ void downsift(float* array, size_t i, size_t n)
 
 
 // not needed for max-heap
-void upsift(float* array, size_t i, size_t n)
-{
-	fprintf(stderr,"WARNING: upsift not implemented.\n");
-};
+// void upsift(float* array, size_t i, size_t n)
+// {
+// 	fprintf(stderr,"WARNING: upsift not implemented.\n");
+// };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdio.h>
 
 
 void* allocate_vector(int length, size_t element_size);
@@ -26,6 +27,47 @@ static inline void swap_values(float* value1, float* value2)
 	*value2 = swap;
 }
 
+inline int cmpfunc (const void * a, const void * b) //what is it returning?
+{
+	float val_a = *(const float*)a; // Good practice to cast to const float*
+    float val_b = *(const float*)b;
+
+    if (val_a < val_b) {
+        return -1; // a comes before b
+    } else if (val_a > val_b) {
+        return 1;  // a comes after b
+    } else {
+        return 0;  // a and b are equivalent
+    }
+}
+
+inline int check_sorting(float* array, size_t length)
+{
+	int not_sorted = 0;
+	for (size_t i = 0; i < length-1; i++)
+	{
+		if (array[i] > array[i+1])
+		{
+			printf("Error: array not sorted at index %zi, i=%f,i+1=%f\n",i,array[i],array[i+1]);
+			not_sorted = 1;
+		}
+		
+	}
+	return not_sorted;
+}
+
+inline void check_array_identity(float* array1, float* array2, size_t length)
+{
+	for (size_t i = 0; i < length; i++)
+	{
+		if (array1[i] != array2[i])
+		{
+			printf("Error: arrays not identical at index %zi, array1=%f,array2=%f\n", i, array1[i], array2[i]);
+		}
+
+	}
+
+}
 
 inline void init_rng(unsigned int seed) { srand(seed); }
 
