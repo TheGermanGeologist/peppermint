@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include "utils.h"
 
 
 // inline helper functions to get indices
@@ -27,3 +28,7 @@ void heapify(float* array, size_t i, size_t n);
 void downsift(float* array, size_t i, size_t n);
 
 void upsift(float* array, size_t i, size_t n);
+
+void heapify_ki(int* key_arr, size_t i, size_t n);
+
+void downsift_ki(int* key_arr, size_t i, size_t n);

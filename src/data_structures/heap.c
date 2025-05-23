@@ -50,6 +50,44 @@ void downsift(float* array, size_t i, size_t n)
 }
 
 
+void heapify_ki(int* key_arr, size_t i, size_t n)
+{
+	// start at i, iterate backwards to 0, and call downsift on each node
+	for (int node = (int)i; node >= 0; node--)
+		downsift_ki(key_arr, node, n);
+
+	// to heapify the entire array, pass first_parent(n) as i
+
+}
+
+
+void downsift_ki(int* key_arr, size_t i, size_t n)
+{
+	while (1)
+	{
+		size_t biggest = i;
+
+		if (left_node(i) < n)
+			if (key_arr[i] < key_arr[left_node(i)])
+				biggest = left_node(i);
+
+		if (right_node(i) < n)
+			if (key_arr[right_node(i)] > key_arr[biggest])
+				biggest = right_node(i);
+		
+		if (biggest != i)
+		{
+			swap_values_ki(key_arr+i, key_arr+biggest);
+			i = biggest;
+		}
+		else
+			break;
+
+	}
+}
+
+
+
 // not needed for max-heap
 // void upsift(float* array, size_t i, size_t n)
 // {

@@ -21,7 +21,6 @@ typedef struct
 } qsort_iterators;
 
 
-
 /**
  * @brief Partitions a subarray using the 3-way (Dutch National Flag) partitioning scheme.
  * @param array The array to be partitioned.
@@ -351,6 +350,238 @@ void adapt_sort(float* array, size_t length)
 		free(stack);
 	
 }
+
+// END GENERIC SORTING FUNCTIONS
+
+
+
+
+
+
+
+
+
+// SPECIALIZED VERSIONS OF ALL FUNCTIONS FOR SORTING PARTICLES BASED ON MORTON CODES
+
+
+qsort_iterators qsort_core_ki(int* key_arr, int i_start, int i_end)
+{
+	// at least three numbers, get a pivot
+	int pivot = get_pivot_ki(key_arr, i_start, i_end);
+
+	// swap pivot and end so pivot is out of the way
+	int pivot_value = key_arr[pivot];
+	swap_values_ki(key_arr + pivot, key_arr + i_end);
+
+	// now keep traversing each side of the pivot up and down and see if we have to swap
+	int lt, i, gt;
+	lt = i = i_start; gt = i_end; // include the pivot, dutch flag should handle it
+	
+	while (i <= gt)
+	{
+		if (key_arr[i] < pivot_value)
+		{
+			swap_values_ki(key_arr + i, key_arr + lt);
+			lt++;
+			i++;
+		}
+		else if (key_arr[i] > pivot_value)
+		{
+			swap_values_ki(key_arr + i, key_arr + gt);
+			gt--;
+		}
+		else
+		{
+			i++;
+		}
+	}
+	qsort_iterators result = {lt,gt};
+	return result;
+}
+
+
+
+inline int get_pivot_ki(int* key_arr, int i_start, int i_end)
+{
+	// median approach
+	int i_middle = (i_end + i_start) / 2;
+	// sort the three values at i_start, i_middle, i_end
+	if (key_arr[i_start] > key_arr[i_middle])
+		swap_values_ki(key_arr+i_start, key_arr+i_middle);
+	if (key_arr[i_middle] > key_arr[i_end])
+		swap_values_ki(key_arr+i_middle, key_arr+i_end);
+	if (key_arr[i_start] > key_arr[i_middle])
+		swap_values_ki(key_arr+i_start, key_arr+i_middle);
+
+	return i_middle; // now use middle of range as pivot
+}
+
+
+void insertion_sort_ki(int* key_arr, size_t length)
+{
+	int i_sorted = 0;
+	int i_candidate = 1;
+	int i_compare = i_sorted;
+
+	while (i_sorted < length - 1)
+	{
+		int candidate_value = key_arr[i_candidate];
+		while (candidate_value < key_arr[i_compare] && i_compare >= 0)
+		{
+			key_arr[i_compare + 1] = key_arr[i_compare];
+			i_compare--;
+		}
+		key_arr[i_compare + 1] = candidate_value;
+
+		i_sorted++;
+		i_candidate = i_sorted + 1;
+		i_compare = i_sorted;
+	}
+	
+}
+
+
+void heap_sort_ki(int* key_arr, size_t length)
+{
+	if (length < 2)
+		return;
+
+	// first, build max heap
+	heapify_ki(key_arr, first_parent(length), length);
+
+	int heap_size = (int)length;
+	// now recursively extract the root, swap back, reduce heap_size and downsift root
+
+	while (heap_size > 1)
+	{
+		swap_values_ki(key_arr, key_arr+(heap_size-1));
+		heap_size--;
+		downsift_ki(key_arr, 0, heap_size);
+	}
+
+}
+
+
+
+void adapt_sort_ki(int* key_arr, size_t length)
+{
+	if (length < 2)
+		return;
+	
+	if (length < INSERTION_SWITCH)
+	{
+		insertion_sort_ki(key_arr, length);
+		return;
+	}
+
+	// start with the iterative qsort approach
+	int critical_stack_size = (int)length / STACK_BAILOUT_RATIO;
+
+	int* stack = NULL;
+	int top = -1;
+
+	// Decide whether to allocate the stack on the heap or the stack
+	if ((critical_stack_size + 4) <= STACK_ALLOC_THRESHOLD)
+	{
+		// Allocate the stack on the stack (hehe)
+		int stack_local[STACK_ALLOC_THRESHOLD];
+		stack = stack_local;
+	}
+	else
+		stack = (int*)allocate_vector((critical_stack_size + 4), sizeof(int));
+
+	// Push the initial range (entire array) onto the stack
+	stack[++top] = 0;
+	stack[++top] = (int)length - 1;
+
+	// Process ranges until the stack is empty
+	while (top >= 1) // should always be >= 1 because we always pop two values from the stack
+	{
+		// Pop a range from the stack
+		int i_end = stack[top--];
+		int i_start = stack[top--];
+
+		// already sorted
+		if (i_start >= i_end)
+			continue;
+
+		int current_partition_size = i_end - i_start + 1;
+
+		if (current_partition_size <= INSERTION_SWITCH)
+		{
+			insertion_sort_ki(key_arr+i_start,current_partition_size);
+			continue;
+		}
+
+		qsort_iterators result = qsort_core_ki(key_arr, i_start, i_end);
+
+		// Push the two new ranges onto the stack
+		// further optimization: push larger partition first
+		int left_start = i_start;
+		int left_end = result.lt - 1;
+		int right_start = result.gt + 1;
+		int right_end = i_end;
+
+		size_t left_size = (left_start <= left_end) ? (size_t)left_end - left_start + 1 : 0;
+		size_t right_size = (right_start <= right_end) ? (size_t)right_end - right_start + 1 : 0;
+
+		if (left_size > right_size) {
+			// Push larger (left) partition first
+			if (left_size > 0) {
+				stack[++top] = left_start;
+				stack[++top] = left_end;
+			}
+			// Push smaller (right) partition second (to be processed next)
+			if (right_size > 0) {
+				stack[++top] = right_start;
+				stack[++top] = right_end;
+			}
+		} else {
+			// Push larger (right) partition first
+			if (right_size > 0) {
+				stack[++top] = right_start;
+				stack[++top] = right_end;
+			}
+			// Push smaller (left) partition second
+			if (left_size > 0) {
+				stack[++top] = left_start;
+				stack[++top] = left_end;
+			}
+		}
+
+		if (top < 1)
+			continue; // fast forward to loop termination
+
+		int partition_length = stack[top] - stack[top-1] + 1;
+
+		// after one iteration, check conditions for switching to other sorting algos
+		if (partition_length <= INSERTION_SWITCH && partition_length > 1)
+		{
+			insertion_sort_ki(key_arr+stack[top-1], partition_length);
+			stack[top] = 0;
+			stack[top-1] = 0;
+			top -= 2;
+
+		}
+		else if (top > critical_stack_size)
+		{
+			heap_sort_ki(key_arr+stack[top-1], partition_length);
+			stack[top] = 0;
+			stack[top-1] = 0;
+			top -= 2;
+		}
+		
+	}
+
+	if ((critical_stack_size + 4) > STACK_ALLOC_THRESHOLD)
+		free(stack);
+	
+}
+
+
+
+
+
 
 
 /* CODE ARCHIVE

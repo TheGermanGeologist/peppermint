@@ -4,6 +4,9 @@
 #include <stdio.h>
 
 
+//typedef int intasdf;
+
+
 void* allocate_vector(int length, size_t element_size);
 
 void free_vector(void* vector);
@@ -23,6 +26,13 @@ void print_array(float* array, size_t length);
 static inline void swap_values(float* value1, float* value2)
 {
 	float swap = *value1;
+	*value1 = *value2;
+	*value2 = swap;
+}
+
+static inline void swap_values_ki(int* value1, int* value2)
+{
+	int swap = *value1;
 	*value1 = *value2;
 	*value2 = swap;
 }
@@ -49,6 +59,21 @@ inline int check_sorting(float* array, size_t length)
 		if (array[i] > array[i+1])
 		{
 			printf("Error: array not sorted at index %zi, i=%f,i+1=%f\n",i,array[i],array[i+1]);
+			not_sorted = 1;
+		}
+		
+	}
+	return not_sorted;
+}
+
+inline int check_sorting_int(int* array, size_t length)
+{
+	int not_sorted = 0;
+	for (size_t i = 0; i < length-1; i++)
+	{
+		if (array[i] > array[i+1])
+		{
+			printf("Error: array not sorted at index %zi, i=%i,i+1=%i\n",i,array[i],array[i+1]);
 			not_sorted = 1;
 		}
 		

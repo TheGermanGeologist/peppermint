@@ -40,152 +40,177 @@ int main()
 	LARGE_INTEGER freq, t_start, t_end;
     QueryPerformanceFrequency(&freq);
 
-	double qsort_time, insersort_time, heapsort_time, recursivesort_time, iterativesort_time, adaptsort_time;
-	qsort_time = insersort_time = heapsort_time = recursivesort_time = iterativesort_time = adaptsort_time = 0.0;
-	
-	int N = 100000;
-	int array_size = 10000;
-	for (int kk= 0; kk < N; kk++)
-	{
-		float* large_array = allocate_vector(array_size, sizeof(float));
-		float* large_array2 = allocate_vector(array_size, sizeof(float));
-		float* large_array3 = allocate_vector(array_size, sizeof(float));
-		float* large_array4 = allocate_vector(array_size, sizeof(float));
-		float* large_array5 = allocate_vector(array_size, sizeof(float));
-		float* large_array6 = allocate_vector(array_size, sizeof(float));
-		float* large_array_static = allocate_vector(array_size, sizeof(float));
+	int Ni = 1000;
+	int array_size_i = 10000;
 
-		for (size_t i = 0; i < array_size; i++)
+	for (int kk = 0; kk < Ni; kk++)
+	{
+		double elapsed_time = 0.0;
+		int* large_array = allocate_vector(array_size_i, sizeof(int));
+		for (size_t i = 0; i < array_size_i; i++)
 		{
-			large_array[i] = get_rand_float(-100.0, 100.0);
+			large_array[i] = get_rand_int(-1000, 1000);
 		}
-		memcpy(large_array2, large_array, array_size * sizeof(float));
-		memcpy(large_array3, large_array, array_size * sizeof(float));
-		memcpy(large_array4, large_array, array_size * sizeof(float));
-		memcpy(large_array5, large_array, array_size * sizeof(float));
-		memcpy(large_array6, large_array, array_size * sizeof(float));
-		memcpy(large_array_static, large_array, array_size * sizeof(float));
-		check_array_identity(large_array, large_array2, array_size);
+		QueryPerformanceCounter(&t_start);
+		adapt_sort_ki(large_array,array_size_i);
+		QueryPerformanceCounter(&t_end);
+
+		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+		printf("Sorted using adapt_sort_ki in %.6f us\n", elapsed_time);
+		check_sorting_int(large_array, array_size_i);
+
+
+		free(large_array);
+	}
+	
+
+
+	// double qsort_time, insersort_time, heapsort_time, recursivesort_time, iterativesort_time, adaptsort_time;
+	// qsort_time = insersort_time = heapsort_time = recursivesort_time = iterativesort_time = adaptsort_time = 0.0;
+	
+	// int N = 1000;
+	// int array_size = 10000;
+	// for (int kk= 0; kk < N; kk++)
+	// {
+	// 	float* large_array = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array2 = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array3 = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array4 = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array5 = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array6 = allocate_vector(array_size, sizeof(float));
+	// 	float* large_array_static = allocate_vector(array_size, sizeof(float));
+
+	// 	for (size_t i = 0; i < array_size; i++)
+	// 	{
+	// 		large_array[i] = get_rand_float(-100.0, 100.0);
+	// 	}
+	// 	memcpy(large_array2, large_array, array_size * sizeof(float));
+	// 	memcpy(large_array3, large_array, array_size * sizeof(float));
+	// 	memcpy(large_array4, large_array, array_size * sizeof(float));
+	// 	memcpy(large_array5, large_array, array_size * sizeof(float));
+	// 	memcpy(large_array6, large_array, array_size * sizeof(float));
+	// 	memcpy(large_array_static, large_array, array_size * sizeof(float));
+	// 	check_array_identity(large_array, large_array2, array_size);
 
 		
 
-		double elapsed_time;
+	// 	double elapsed_time;
 
-		QueryPerformanceCounter(&t_start);
-		qsort(large_array, array_size, sizeof(float), cmpfunc);
-		QueryPerformanceCounter(&t_end);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	qsort(large_array, array_size, sizeof(float), cmpfunc);
+	// 	QueryPerformanceCounter(&t_end);
 
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		qsort_time += elapsed_time;
-		printf("Sorted using std qsort in %.6f us\n", elapsed_time);
-		//printf("Sorted using std qsort in: %f ms\n", elapsed_time);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	qsort_time += elapsed_time;
+	// 	printf("Sorted using std qsort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using std qsort in: %f ms\n", elapsed_time);
 
-		if (check_sorting(large_array, array_size))
-		{
-			printf("Error: std qsort not sorted\n");
-			printf("This was the input array:\n");
-			print_array(large_array_static, array_size);
-			break;
-		}
+	// 	if (check_sorting(large_array, array_size))
+	// 	{
+	// 		printf("Error: std qsort not sorted\n");
+	// 		printf("This was the input array:\n");
+	// 		print_array(large_array_static, array_size);
+	// 		break;
+	// 	}
 
 
-		QueryPerformanceCounter(&t_start);
-		heap_sort(large_array3, array_size);
-		QueryPerformanceCounter(&t_end);
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		heapsort_time += elapsed_time;
-		printf("Sorted using heap_sort in %.6f us\n", elapsed_time);
-		//printf("Sorted using heap_sort in: %f ms\n", elapsed_time);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	heap_sort(large_array3, array_size);
+	// 	QueryPerformanceCounter(&t_end);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	heapsort_time += elapsed_time;
+	// 	printf("Sorted using heap_sort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using heap_sort in: %f ms\n", elapsed_time);
 
-		check_sorting(large_array3, array_size);
+	// 	check_sorting(large_array3, array_size);
 
-		QueryPerformanceCounter(&t_start);
-		insertion_sort(large_array4, array_size);
-		QueryPerformanceCounter(&t_end);
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		insersort_time += elapsed_time;
-		printf("Sorted using insertion_sort in %.6f us\n", elapsed_time);
-		//printf("Sorted using insertion_sort in: %f ms\n", elapsed_time);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	insertion_sort(large_array4, array_size);
+	// 	QueryPerformanceCounter(&t_end);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	insersort_time += elapsed_time;
+	// 	printf("Sorted using insertion_sort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using insertion_sort in: %f ms\n", elapsed_time);
 
-		check_sorting(large_array4, array_size);
+	// 	check_sorting(large_array4, array_size);
 
-		QueryPerformanceCounter(&t_start);
-		recursive_qsort(large_array6, 0, array_size - 1);
-		QueryPerformanceCounter(&t_end);
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		recursivesort_time += elapsed_time;
-		printf("Sorted using recursive_qsort in %.6f us\n", elapsed_time);
-		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	recursive_qsort(large_array6, 0, array_size - 1);
+	// 	QueryPerformanceCounter(&t_end);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	recursivesort_time += elapsed_time;
+	// 	printf("Sorted using recursive_qsort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
 
-		if (check_sorting(large_array6, array_size))
-		{
-			printf("Error: recursive_qsort not sorted\n");
-			printf("This was the input array:\n");
-			print_array(large_array_static, array_size);
-			printf("This is the array sorted by qsort:\n");
-			print_array(large_array, array_size);
-			printf("This is the array sorted by recursive_qsort:\n");
-			print_array(large_array6, array_size);
-			break;
-		}
+	// 	if (check_sorting(large_array6, array_size))
+	// 	{
+	// 		printf("Error: recursive_qsort not sorted\n");
+	// 		printf("This was the input array:\n");
+	// 		print_array(large_array_static, array_size);
+	// 		printf("This is the array sorted by qsort:\n");
+	// 		print_array(large_array, array_size);
+	// 		printf("This is the array sorted by recursive_qsort:\n");
+	// 		print_array(large_array6, array_size);
+	// 		break;
+	// 	}
 
-		QueryPerformanceCounter(&t_start);
-		iterative_qsort(large_array2, array_size);
-		QueryPerformanceCounter(&t_end);
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		iterativesort_time += elapsed_time;
-		printf("Sorted using iterative_qsort in %.6f us\n", elapsed_time);
-		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	iterative_qsort(large_array2, array_size);
+	// 	QueryPerformanceCounter(&t_end);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	iterativesort_time += elapsed_time;
+	// 	printf("Sorted using iterative_qsort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
 
-		if (check_sorting(large_array2, array_size))
-		{
-			printf("Error: iterative_qsort not sorted\n");
-			printf("This was the input array:\n");
-			print_array(large_array_static, array_size);
-			printf("This is the array sorted by qsort:\n");
-			print_array(large_array, array_size);
-			printf("This is the array sorted by iterative_qsort:\n");
-			print_array(large_array2, array_size);
-			break;
-		}
+	// 	if (check_sorting(large_array2, array_size))
+	// 	{
+	// 		printf("Error: iterative_qsort not sorted\n");
+	// 		printf("This was the input array:\n");
+	// 		print_array(large_array_static, array_size);
+	// 		printf("This is the array sorted by qsort:\n");
+	// 		print_array(large_array, array_size);
+	// 		printf("This is the array sorted by iterative_qsort:\n");
+	// 		print_array(large_array2, array_size);
+	// 		break;
+	// 	}
 
-		QueryPerformanceCounter(&t_start);
-		adapt_sort(large_array2, array_size);
-		QueryPerformanceCounter(&t_end);
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		adaptsort_time += elapsed_time;
-		printf("Sorted using adapt_sort in %.6f us\n", elapsed_time);
-		//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
+	// 	QueryPerformanceCounter(&t_start);
+	// 	adapt_sort(large_array2, array_size);
+	// 	QueryPerformanceCounter(&t_end);
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	adaptsort_time += elapsed_time;
+	// 	printf("Sorted using adapt_sort in %.6f us\n", elapsed_time);
+	// 	//printf("Sorted using recursive_qsort in: %f ms\n", elapsed_time);
 
-		if (check_sorting(large_array2, array_size))
-		{
-			printf("Error: adapt_sort not sorted\n");
-			printf("This was the input array:\n");
-			print_array(large_array_static, array_size);
-			printf("This is the array sorted by qsort:\n");
-			print_array(large_array, array_size);
-			printf("This is the array sorted by adapt_sort:\n");
-			print_array(large_array2, array_size);
-			break;
-		}
+	// 	if (check_sorting(large_array2, array_size))
+	// 	{
+	// 		printf("Error: adapt_sort not sorted\n");
+	// 		printf("This was the input array:\n");
+	// 		print_array(large_array_static, array_size);
+	// 		printf("This is the array sorted by qsort:\n");
+	// 		print_array(large_array, array_size);
+	// 		printf("This is the array sorted by adapt_sort:\n");
+	// 		print_array(large_array2, array_size);
+	// 		break;
+	// 	}
 
-		free(large_array);
-		free(large_array2);
-		free(large_array3);
-		free(large_array4);
-		free(large_array5);
-		free(large_array6);
-		free(large_array_static);
+	// 	free(large_array);
+	// 	free(large_array2);
+	// 	free(large_array3);
+	// 	free(large_array4);
+	// 	free(large_array5);
+	// 	free(large_array6);
+	// 	free(large_array_static);
 
-	}
+	// }
 
-	printf("\n\nAverage sorting times for l = %i, N = %i:\n",array_size,N);
-	printf("\t Std qsort:\t\t %.3f us\n", qsort_time/N);
-	printf("\t Insertion sort:\t %.3f us\n", insersort_time/N);
-	printf("\t Heap sort:\t\t %.3f us\n", heapsort_time/N);
-	printf("\t Recursive qsort:\t %.3f us\n", recursivesort_time/N);
-	printf("\t Iterative qsort:\t %.3f us\n", iterativesort_time/N);
-	printf("\t Adaptive sort:\t\t %.3f us\n", adaptsort_time/N);
+	// printf("\n\nAverage sorting times for l = %i, N = %i:\n",array_size,N);
+	// printf("\t Std qsort:\t\t %.3f us\n", qsort_time/N);
+	// printf("\t Insertion sort:\t %.3f us\n", insersort_time/N);
+	// printf("\t Heap sort:\t\t %.3f us\n", heapsort_time/N);
+	// printf("\t Recursive qsort:\t %.3f us\n", recursivesort_time/N);
+	// printf("\t Iterative qsort:\t %.3f us\n", iterativesort_time/N);
+	// printf("\t Adaptive sort:\t\t %.3f us\n", adaptsort_time/N);
 
 	return 0;
 }
