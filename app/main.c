@@ -1,3 +1,13 @@
+/*
+	    ____                                       _       __ 
+	   / __ \___  ____  ____  ___  _________ ___  (_)___  / /_
+	  / /_/ / _ \/ __ \/ __ \/ _ \/ ___/ __ `__ \/ / __ \/ __/
+	 / ____/  __/ /_/ / /_/ /  __/ /  / / / / / / / / / / /_  
+	/_/    \___/ .___/ .___/\___/_/  /_/ /_/ /_/_/_/ /_/\__/  
+	          /_/   /_/                                       
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -33,7 +43,7 @@ int main()
 	double qsort_time, insersort_time, heapsort_time, recursivesort_time, iterativesort_time, adaptsort_time;
 	qsort_time = insersort_time = heapsort_time = recursivesort_time = iterativesort_time = adaptsort_time = 0.0;
 	
-	int N = 1000;
+	int N = 100000;
 	int array_size = 10000;
 	for (int kk= 0; kk < N; kk++)
 	{
@@ -158,6 +168,15 @@ int main()
 			print_array(large_array2, array_size);
 			break;
 		}
+
+		free(large_array);
+		free(large_array2);
+		free(large_array3);
+		free(large_array4);
+		free(large_array5);
+		free(large_array6);
+		free(large_array_static);
+
 	}
 
 	printf("\n\nAverage sorting times for l = %i, N = %i:\n",array_size,N);

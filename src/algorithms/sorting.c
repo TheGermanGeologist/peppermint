@@ -269,7 +269,7 @@ void adapt_sort(float* array, size_t length)
 	stack[++top] = (int)length - 1;
 
 	// Process ranges until the stack is empty
-	while (top >= 0)
+	while (top >= 1) // should always be >= 1 because we always pop two values from the stack
 	{
 		// Pop a range from the stack
 		int i_end = stack[top--];
@@ -278,6 +278,14 @@ void adapt_sort(float* array, size_t length)
 		// already sorted
 		if (i_start >= i_end)
 			continue;
+
+		int current_partition_size = i_end - i_start + 1;
+
+		if (current_partition_size <= INSERTION_SWITCH)
+		{
+			insertion_sort(array+i_start,current_partition_size);
+			continue;
+		}
 
 		qsort_iterators result = qsort_core(array, i_start, i_end);
 
@@ -315,10 +323,13 @@ void adapt_sort(float* array, size_t length)
 			}
 		}
 
+		if (top < 1)
+			continue; // fast forward to loop termination
+
 		int partition_length = stack[top] - stack[top-1] + 1;
 
 		// after one iteration, check conditions for switching to other sorting algos
-		if (partition_length <= INSERTION_SWITCH)
+		if (partition_length <= INSERTION_SWITCH && partition_length > 1)
 		{
 			insertion_sort(array+stack[top-1], partition_length);
 			stack[top] = 0;
