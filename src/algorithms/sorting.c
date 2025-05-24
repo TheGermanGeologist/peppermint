@@ -11,16 +11,6 @@
 #define STACK_BAILOUT_RATIO 5
 
 /**
- * @brief Defines iterators for quicksort partitioning.
- */
-typedef struct 
-{
-	int lt;
-	int gt;
-} qsort_iterators;
-
-
-/**
  * @brief Partitions a subarray using the 3-way (Dutch National Flag) partitioning scheme.
  * @param array The array to be partitioned.
  * @param i_start The starting index of the subarray.
@@ -61,7 +51,6 @@ qsort_iterators qsort_core(float* array, int i_start, int i_end)
 	qsort_iterators result = {lt,gt};
 	return result;
 }
-
 
 
 /**
@@ -592,66 +581,3 @@ void adapt_sort_ki(KeyType* key_arr, int* index_arr, size_t length)
 		free(stack);
 	
 }
-
-
-
-
-
-
-
-/* CODE ARCHIVE
-
-// broken version using Hoare partitioning
-void recursive_qsort(float* array, int i_start, int i_end)
-{
-	// check if nothing is left to do
-	if (i_start == i_end)
-		return;
-
-	// if there are only two numbers left, sort them, then return
-	if (i_end == i_start+1)
-	{
-		if (array[i_start] > array[i_end])
-			swap_values(array + i_start, array + i_end);
-		
-		return;
-	}
-
-	// at least three numbers, get a pivot
-	int pivot = get_pivot(array, i_start, i_end);
-
-	// swap pivot and end so pivot is out of the way
-	float pivot_value = array[pivot];
-	swap_values(array + pivot, array + i_end);
-
-	// now keep traversing each side of the pivot up and down and see if we have to swap
-	int i_from_left, i_from_right;
-	i_from_left = i_start; i_from_right = i_end - 1; // <- don't include the pivot
-	
-	while (1)
-	{
-		while (array[i_from_left] <= pivot_value)
-			i_from_left++;
-		
-		while (array[i_from_right] > pivot_value)
-			i_from_right--;
-		
-		if (i_from_left > i_from_right) // everything is sorted across the pivot
-			break;
-
-		swap_values(array + i_from_left, array + i_from_right);
-	}
-
-	// swap back the pivot
-	swap_values(array + i_from_left, array + i_end);
-
-	// recursive calls to quick sort
-	// lower partition
-	recursive_qsort(array,	i_start,		i_from_left-1	);
-	recursive_qsort(array,	i_from_left+1,	i_end			);
-
-	// finally, return
-	return;
-	
-}
-*/

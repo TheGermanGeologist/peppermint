@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include "utils.h"
+#include "algorithms/sorting_helpers.h"
 
 
 // inline helper functions to get indices

@@ -1,8 +1,5 @@
 #include "utils.h"
 
-#include <stdio.h>
-
-
 void* allocate_vector(int length, size_t element_size)
 {
 	if (length <= 0 || element_size == 0)
@@ -55,65 +52,4 @@ void free_2D_array(void** array, int rows)
 
 	free(array);
 	array = NULL;
-}
-
-
-
-void print_array_range(float* array, int i_start, int i_end)
-{
-	for (int i = i_start; i <= i_end; i++)
-		printf("%f ",array[i]);
-	
-	printf("\n");
-	
-	return;
-}
-
-void print_array(float* array, size_t length)
-{
-	for (size_t i = 0; i < length; i++)
-		printf("%f ",array[i]);
-	
-	printf("\n");
-	
-	return;
-}
-
-void print_array_int(int* array, size_t length)
-{
-	for (size_t i = 0; i < length; i++)
-		printf("%i ",array[i]);
-	
-	printf("\n");
-	
-	return;
-}
-
-
-
-int* new_index_array(size_t length)
-{
-	int* indices = (int*)allocate_vector((int)length,sizeof(int));
-
-	for (size_t i = 0; i < length; i++)
-	{
-		indices[i] = (int)i;
-	}
-	return indices;
-}
-
-
-int get_rand_int(int range_min, int range_max)
-{
-	return range_min + rand() / ( (RAND_MAX + 1u) / (range_max - range_min + 1) );
-}
-
-int get_rand_int_mod(int range_min, int range_max)
-{
-	return range_min + rand() % (range_max - range_min + 1);
-}
-
-float get_rand_float(float range_min, float range_max)
-{
-	return range_min + ((float)rand() / (float)(RAND_MAX + 1u)) * (range_max - range_min);
 }

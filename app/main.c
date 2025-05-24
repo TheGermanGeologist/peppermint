@@ -11,14 +11,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
-
+#include "time.h"
 #include <windows.h> // for timings
 
 #include "particle.h"
 #include "utils.h"
 #include "algorithms/sorting.h"
+#include "logging.h"
+#include "rng.h"
 
-#include "time.h"
+
 
 int main()
 {
