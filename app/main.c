@@ -32,36 +32,45 @@ int main()
 	// test array on the stack
 
 	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
+	int   test_array_int[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
+	int* indices = new_index_array(15);
+	
+	
+	print_array_int(test_array_int,15);
+	adapt_sort_ki(test_array_int,indices,15);
 
-	recursive_qsort(test_array,0,14);
+	//recursive_qsort(test_array,0,14);
 	printf("done sorting\n");
-	print_array(test_array,15);
-
-	LARGE_INTEGER freq, t_start, t_end;
-    QueryPerformanceFrequency(&freq);
-
-	int Ni = 1000;
-	int array_size_i = 10000;
-
-	for (int kk = 0; kk < Ni; kk++)
-	{
-		double elapsed_time = 0.0;
-		int* large_array = allocate_vector(array_size_i, sizeof(int));
-		for (size_t i = 0; i < array_size_i; i++)
-		{
-			large_array[i] = get_rand_int(-1000, 1000);
-		}
-		QueryPerformanceCounter(&t_start);
-		adapt_sort_ki(large_array,array_size_i);
-		QueryPerformanceCounter(&t_end);
-
-		elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
-		printf("Sorted using adapt_sort_ki in %.6f us\n", elapsed_time);
-		check_sorting_int(large_array, array_size_i);
+	//print_array(test_array,15);
+	print_array_int(test_array_int,15);
+	print_array_int(indices,15);
 
 
-		free(large_array);
-	}
+	// LARGE_INTEGER freq, t_start, t_end;
+    // QueryPerformanceFrequency(&freq);
+
+	// int Ni = 1000;
+	// int array_size_i = 10000;
+
+	// for (int kk = 0; kk < Ni; kk++)
+	// {
+	// 	double elapsed_time = 0.0;
+	// 	int* large_array = allocate_vector(array_size_i, sizeof(int));
+	// 	for (size_t i = 0; i < array_size_i; i++)
+	// 	{
+	// 		large_array[i] = get_rand_int(-1000, 1000);
+	// 	}
+	// 	QueryPerformanceCounter(&t_start);
+	// 	adapt_sort_ki(large_array,array_size_i);
+	// 	QueryPerformanceCounter(&t_end);
+
+	// 	elapsed_time = (double)(t_end.QuadPart - t_start.QuadPart) / freq.QuadPart *1e6;
+	// 	printf("Sorted using adapt_sort_ki in %.6f us\n", elapsed_time);
+	// 	check_sorting_int(large_array, array_size_i);
+
+
+	// 	free(large_array);
+	// }
 	
 
 

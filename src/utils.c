@@ -79,6 +79,29 @@ void print_array(float* array, size_t length)
 	return;
 }
 
+void print_array_int(int* array, size_t length)
+{
+	for (size_t i = 0; i < length; i++)
+		printf("%i ",array[i]);
+	
+	printf("\n");
+	
+	return;
+}
+
+
+
+int* new_index_array(size_t length)
+{
+	int* indices = (int*)allocate_vector((int)length,sizeof(int));
+
+	for (size_t i = 0; i < length; i++)
+	{
+		indices[i] = (int)i;
+	}
+	return indices;
+}
+
 
 int get_rand_int(int range_min, int range_max)
 {

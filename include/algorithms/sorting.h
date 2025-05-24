@@ -25,7 +25,7 @@ void heap_sort(float* array, size_t length);
 void adapt_sort(float* array, size_t length);
 
 
-inline int get_pivot_ki(KeyType* key_arr, int i_start, int i_end);
-void insertion_sort_ki(KeyType* key_arr, size_t length);
-void heap_sort_ki(KeyType* key_arr, size_t length);
-void adapt_sort_ki(KeyType* key_arr, size_t length);
+inline int get_pivot_ki(KeyType* key_arr, int* index_arr, int i_start, int i_end);
+void insertion_sort_ki(KeyType* key_arr, int* index_arr, size_t length);
+void heap_sort_ki(KeyType* key_arr, int* index_arr, size_t length);
+void adapt_sort_ki(KeyType* key_arr, int* index_arr, size_t length);

@@ -363,14 +363,15 @@ void adapt_sort(float* array, size_t length)
 // SPECIALIZED VERSIONS OF ALL FUNCTIONS FOR SORTING PARTICLES BASED ON MORTON CODES
 
 
-qsort_iterators qsort_core_ki(KeyType* key_arr, int i_start, int i_end)
+qsort_iterators qsort_core_ki(KeyType* key_arr, int* index_arr, int i_start, int i_end)
 {
 	// at least three numbers, get a pivot
-	int pivot = get_pivot_ki(key_arr, i_start, i_end);
+	int pivot = get_pivot_ki(key_arr, index_arr, i_start, i_end);
 
 	// swap pivot and end so pivot is out of the way
 	KeyType pivot_value = key_arr[pivot];
 	swap_values_ki(key_arr + pivot, key_arr + i_end);
+	swap_values_int(index_arr + pivot, index_arr + i_end);
 
 	// now keep traversing each side of the pivot up and down and see if we have to swap
 	int lt, i, gt;
@@ -381,12 +382,14 @@ qsort_iterators qsort_core_ki(KeyType* key_arr, int i_start, int i_end)
 		if (key_arr[i] < pivot_value)
 		{
 			swap_values_ki(key_arr + i, key_arr + lt);
+			swap_values_int(index_arr + i, index_arr + lt);
 			lt++;
 			i++;
 		}
 		else if (key_arr[i] > pivot_value)
 		{
 			swap_values_ki(key_arr + i, key_arr + gt);
+			swap_values_int(index_arr + i, index_arr + gt);
 			gt--;
 		}
 		else
@@ -400,23 +403,32 @@ qsort_iterators qsort_core_ki(KeyType* key_arr, int i_start, int i_end)
 
 
 
-inline int get_pivot_ki(KeyType* key_arr, int i_start, int i_end)
+inline int get_pivot_ki(KeyType* key_arr, int* index_arr, int i_start, int i_end)
 {
 	// median approach
 	int i_middle = (i_end + i_start) / 2;
 	// sort the three values at i_start, i_middle, i_end
 	if (key_arr[i_start] > key_arr[i_middle])
+	{
 		swap_values_ki(key_arr+i_start, key_arr+i_middle);
+		swap_values_int(index_arr+i_start, key_arr+i_middle);
+	}
 	if (key_arr[i_middle] > key_arr[i_end])
+	{
 		swap_values_ki(key_arr+i_middle, key_arr+i_end);
+		swap_values_int(index_arr+i_middle, key_arr+i_end);
+	}
 	if (key_arr[i_start] > key_arr[i_middle])
+	{
 		swap_values_ki(key_arr+i_start, key_arr+i_middle);
+		swap_values_int(index_arr+i_start, key_arr+i_middle);
+	}
 
 	return i_middle; // now use middle of range as pivot
 }
 
 
-void insertion_sort_ki(KeyType* key_arr, size_t length)
+void insertion_sort_ki(KeyType* key_arr, int* index_arr, size_t length)
 {
 	int i_sorted = 0;
 	int i_candidate = 1;
@@ -425,12 +437,15 @@ void insertion_sort_ki(KeyType* key_arr, size_t length)
 	while (i_sorted < length - 1)
 	{
 		KeyType candidate_value = key_arr[i_candidate];
+		int original_index = index_arr[i_candidate];
 		while (candidate_value < key_arr[i_compare] && i_compare >= 0)
 		{
 			key_arr[i_compare + 1] = key_arr[i_compare];
+			index_arr[i_compare +1] = index_arr[i_compare];
 			i_compare--;
 		}
 		key_arr[i_compare + 1] = candidate_value;
+		index_arr[i_compare +1] = original_index;
 
 		i_sorted++;
 		i_candidate = i_sorted + 1;
@@ -440,13 +455,13 @@ void insertion_sort_ki(KeyType* key_arr, size_t length)
 }
 
 
-void heap_sort_ki(KeyType* key_arr, size_t length)
+void heap_sort_ki(KeyType* key_arr, int* index_arr, size_t length)
 {
 	if (length < 2)
 		return;
 
 	// first, build max heap
-	heapify_ki(key_arr, first_parent(length), length);
+	heapify_ki(key_arr, index_arr, first_parent(length), length);
 
 	int heap_size = (int)length;
 	// now recursively extract the root, swap back, reduce heap_size and downsift root
@@ -454,22 +469,23 @@ void heap_sort_ki(KeyType* key_arr, size_t length)
 	while (heap_size > 1)
 	{
 		swap_values_ki(key_arr, key_arr+(heap_size-1));
+		swap_values_int(index_arr, index_arr+(heap_size-1));
 		heap_size--;
-		downsift_ki(key_arr, 0, heap_size);
+		downsift_ki(key_arr, index_arr, 0, heap_size);
 	}
 
 }
 
 
 
-void adapt_sort_ki(KeyType* key_arr, size_t length)
+void adapt_sort_ki(KeyType* key_arr, int* index_arr, size_t length)
 {
 	if (length < 2)
 		return;
 	
 	if (length < INSERTION_SWITCH)
 	{
-		insertion_sort_ki(key_arr, length);
+		insertion_sort_ki(key_arr, index_arr, length);
 		return;
 	}
 
@@ -508,11 +524,11 @@ void adapt_sort_ki(KeyType* key_arr, size_t length)
 
 		if (current_partition_size <= INSERTION_SWITCH)
 		{
-			insertion_sort_ki(key_arr+i_start,current_partition_size);
+			insertion_sort_ki(key_arr+i_start, index_arr+i_start, current_partition_size);
 			continue;
 		}
 
-		qsort_iterators result = qsort_core_ki(key_arr, i_start, i_end);
+		qsort_iterators result = qsort_core_ki(key_arr, index_arr, i_start, i_end);
 
 		// Push the two new ranges onto the stack
 		// further optimization: push larger partition first
@@ -556,7 +572,7 @@ void adapt_sort_ki(KeyType* key_arr, size_t length)
 		// after one iteration, check conditions for switching to other sorting algos
 		if (partition_length <= INSERTION_SWITCH && partition_length > 1)
 		{
-			insertion_sort_ki(key_arr+stack[top-1], partition_length);
+			insertion_sort_ki(key_arr+stack[top-1], index_arr+stack[top-1], partition_length);
 			stack[top] = 0;
 			stack[top-1] = 0;
 			top -= 2;
@@ -564,7 +580,7 @@ void adapt_sort_ki(KeyType* key_arr, size_t length)
 		}
 		else if (top > critical_stack_size)
 		{
-			heap_sort_ki(key_arr+stack[top-1], partition_length);
+			heap_sort_ki(key_arr+stack[top-1], index_arr+stack[top-1], partition_length);
 			stack[top] = 0;
 			stack[top-1] = 0;
 			top -= 2;

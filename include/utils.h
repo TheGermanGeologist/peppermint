@@ -20,7 +20,10 @@ void free_2D_array(void** array, int rows);
 void print_array_range(float* array, int i_start, int i_end);
 
 void print_array(float* array, size_t length);
+void print_array_int(int* array, size_t length);
 
+
+int* new_index_array(size_t length);
 
 
 static inline void swap_values(float* value1, float* value2)
@@ -32,10 +35,19 @@ static inline void swap_values(float* value1, float* value2)
 
 static inline void swap_values_ki(KeyType* value1, KeyType* value2)
 {
+	KeyType swap = *value1;
+	*value1 = *value2;
+	*value2 = swap;
+}
+
+
+static inline void swap_values_int(int* value1, int* value2)
+{
 	int swap = *value1;
 	*value1 = *value2;
 	*value2 = swap;
 }
+
 
 inline int cmpfunc (const void * a, const void * b) //what is it returning?
 {
