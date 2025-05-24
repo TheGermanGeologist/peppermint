@@ -1,6 +1,5 @@
 #include "algorithms/sorting.h"
 #include "data_structures/heap.h"
-#include "utils.h"
 
 #include <stdio.h>
 
@@ -441,7 +440,7 @@ void insertion_sort_ki(int* key_arr, size_t length)
 }
 
 
-void heap_sort_ki(int* key_arr, size_t length)
+void heap_sort_ki(KeyType* key_arr, size_t length)
 {
 	if (length < 2)
 		return;

@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-//typedef int intasdf;
+typedef int KeyType;
 
 
 void* allocate_vector(int length, size_t element_size);
@@ -30,7 +30,7 @@ static inline void swap_values(float* value1, float* value2)
 	*value2 = swap;
 }
 
-static inline void swap_values_ki(int* value1, int* value2)
+static inline void swap_values_ki(KeyType* value1, KeyType* value2)
 {
 	int swap = *value1;
 	*value1 = *value2;
@@ -66,7 +66,7 @@ inline int check_sorting(float* array, size_t length)
 	return not_sorted;
 }
 
-inline int check_sorting_int(int* array, size_t length)
+inline int check_sorting_int(KeyType* array, size_t length)
 {
 	int not_sorted = 0;
 	for (size_t i = 0; i < length-1; i++)

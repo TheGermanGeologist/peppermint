@@ -1,5 +1,4 @@
 #include "data_structures/heap.h"
-#include "utils.h"
 
 #include <stdio.h>
 
@@ -50,7 +49,7 @@ void downsift(float* array, size_t i, size_t n)
 }
 
 
-void heapify_ki(int* key_arr, size_t i, size_t n)
+void heapify_ki(KeyType* key_arr, size_t i, size_t n)
 {
 	// start at i, iterate backwards to 0, and call downsift on each node
 	for (int node = (int)i; node >= 0; node--)
@@ -61,7 +60,7 @@ void heapify_ki(int* key_arr, size_t i, size_t n)
 }
 
 
-void downsift_ki(int* key_arr, size_t i, size_t n)
+void downsift_ki(KeyType* key_arr, size_t i, size_t n)
 {
 	while (1)
 	{

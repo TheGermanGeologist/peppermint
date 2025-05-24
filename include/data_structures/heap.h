@@ -29,6 +29,6 @@ void downsift(float* array, size_t i, size_t n);
 
 void upsift(float* array, size_t i, size_t n);
 
-void heapify_ki(int* key_arr, size_t i, size_t n);
+void heapify_ki(KeyType* key_arr, size_t i, size_t n);
 
-void downsift_ki(int* key_arr, size_t i, size_t n);
+void downsift_ki(KeyType* key_arr, size_t i, size_t n);
