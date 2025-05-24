@@ -411,17 +411,17 @@ inline int get_pivot_ki(KeyType* key_arr, int* index_arr, int i_start, int i_end
 	if (key_arr[i_start] > key_arr[i_middle])
 	{
 		swap_values_ki(key_arr+i_start, key_arr+i_middle);
-		swap_values_int(index_arr+i_start, key_arr+i_middle);
+		swap_values_int(index_arr+i_start, index_arr+i_middle);
 	}
 	if (key_arr[i_middle] > key_arr[i_end])
 	{
 		swap_values_ki(key_arr+i_middle, key_arr+i_end);
-		swap_values_int(index_arr+i_middle, key_arr+i_end);
+		swap_values_int(index_arr+i_middle, index_arr+i_end);
 	}
 	if (key_arr[i_start] > key_arr[i_middle])
 	{
 		swap_values_ki(key_arr+i_start, key_arr+i_middle);
-		swap_values_int(index_arr+i_start, key_arr+i_middle);
+		swap_values_int(index_arr+i_start, index_arr+i_middle);
 	}
 
 	return i_middle; // now use middle of range as pivot
