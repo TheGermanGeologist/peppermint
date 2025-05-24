@@ -363,13 +363,13 @@ void adapt_sort(float* array, size_t length)
 // SPECIALIZED VERSIONS OF ALL FUNCTIONS FOR SORTING PARTICLES BASED ON MORTON CODES
 
 
-qsort_iterators qsort_core_ki(int* key_arr, int i_start, int i_end)
+qsort_iterators qsort_core_ki(KeyType* key_arr, int i_start, int i_end)
 {
 	// at least three numbers, get a pivot
 	int pivot = get_pivot_ki(key_arr, i_start, i_end);
 
 	// swap pivot and end so pivot is out of the way
-	int pivot_value = key_arr[pivot];
+	KeyType pivot_value = key_arr[pivot];
 	swap_values_ki(key_arr + pivot, key_arr + i_end);
 
 	// now keep traversing each side of the pivot up and down and see if we have to swap
@@ -400,7 +400,7 @@ qsort_iterators qsort_core_ki(int* key_arr, int i_start, int i_end)
 
 
 
-inline int get_pivot_ki(int* key_arr, int i_start, int i_end)
+inline int get_pivot_ki(KeyType* key_arr, int i_start, int i_end)
 {
 	// median approach
 	int i_middle = (i_end + i_start) / 2;
@@ -416,7 +416,7 @@ inline int get_pivot_ki(int* key_arr, int i_start, int i_end)
 }
 
 
-void insertion_sort_ki(int* key_arr, size_t length)
+void insertion_sort_ki(KeyType* key_arr, size_t length)
 {
 	int i_sorted = 0;
 	int i_candidate = 1;
@@ -424,7 +424,7 @@ void insertion_sort_ki(int* key_arr, size_t length)
 
 	while (i_sorted < length - 1)
 	{
-		int candidate_value = key_arr[i_candidate];
+		KeyType candidate_value = key_arr[i_candidate];
 		while (candidate_value < key_arr[i_compare] && i_compare >= 0)
 		{
 			key_arr[i_compare + 1] = key_arr[i_compare];
@@ -462,7 +462,7 @@ void heap_sort_ki(KeyType* key_arr, size_t length)
 
 
 
-void adapt_sort_ki(int* key_arr, size_t length)
+void adapt_sort_ki(KeyType* key_arr, size_t length)
 {
 	if (length < 2)
 		return;
