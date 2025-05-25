@@ -24,36 +24,63 @@
 
 int main()
 {
-	init_rng((int)time(NULL));
+	RNG rng1;
+	init_rng(&rng1,(int)time(NULL));
+
+	int* random_ints = (int*)allocate_vector(100000,sizeof(int));
+	for (size_t i = 0; i < 100000; i++)
+	{
+		random_ints[i] = rng_int(&rng1,-500,500);
+	}
 	
-	// check particle structs
-	printf("Size of Continuum Particle: %zi\n",sizeof(ContinuumParticleDummy));
-	printf("Size of Discrete Particle: %zi\n",sizeof(DiscreteParticleDummy));
 
+	int bins[11];
+	for (size_t i = 0; i < 11; i++)
+	{
+		bins[i] = 0;
+	}
 
-	// test array on the stack
-
-	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
-	int   test_array_int[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
-	//int   test_array_int_orig[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
-	int* indices = new_index_array(15);
+	for (size_t i = 0; i < 100000; i++)
+	{
+		int shifted_value = random_ints[i] + 500;
+		int bin_index = (int)((double)shifted_value * 11.0 / 1001.0);
+		if (bin_index < 0) bin_index = 0;
+        if (bin_index > 10) bin_index = 10;
+		bins[bin_index] += 1;
+	}
 	
+	int max = -10000000;
+	for (size_t i = 0; i < 11; i++)
+	{
+		if (bins[i] > max)
+			max = bins[i];
+	}
+
+	// bin length: 30
+	for (size_t i = 0; i < 11; i++)
+	{
+		bins[i] = bins[i] * 30 / max;
+	}
+
+	for (size_t i = 0; i < 11; i++)
+	{
+		if(-5+(int)i >= 0)
+			printf(" ");
+		printf("%zi: ",-5+i);
+		for (size_t j = 0; j < bins[i]; j++)
+		{
+			printf("#");
+		}
+		printf("\n");
+	}
 	
-	print_array_int(test_array_int,15);
-	adapt_sort_ki(test_array_int,indices,15);
 
-	bool* bookkeeper = (bool*)allocate_vector(15,sizeof(bool));
-	map_farray_to_indices(test_array, indices, bookkeeper, 15);
-
-	//recursive_qsort(test_array,0,14);
-	printf("done sorting\n");
-	//print_array(test_array,15);
-	print_array_int(test_array_int,15);
-	print_array_int(indices,15);
-	print_array(test_array,15);
+	return 0;
+}
 
 
-	// LARGE_INTEGER freq, t_start, t_end;
+
+// LARGE_INTEGER freq, t_start, t_end;
     // QueryPerformanceFrequency(&freq);
 
 	// int Ni = 1000;
@@ -228,12 +255,39 @@ int main()
 	// printf("\t Iterative qsort:\t %.3f us\n", iterativesort_time/N);
 	// printf("\t Adaptive sort:\t\t %.3f us\n", adaptsort_time/N);
 
-	return 0;
-}
-
-
 // OLD TESTS
 /*
+	init_rng((int)time(NULL));
+	
+	// check particle structs
+	printf("Size of Continuum Particle: %zi\n",sizeof(ContinuumParticleDummy));
+	printf("Size of Discrete Particle: %zi\n",sizeof(DiscreteParticleDummy));
+
+
+	// test array on the stack
+
+	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
+	int   test_array_int[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
+	//int   test_array_int_orig[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
+	int* indices = new_index_array(15);
+	
+	
+	print_array_int(test_array_int,15);
+	adapt_sort_ki(test_array_int,indices,15);
+
+	bool* bookkeeper = (bool*)allocate_vector(15,sizeof(bool));
+	map_farray_to_indices(test_array, indices, bookkeeper, 15);
+
+	//recursive_qsort(test_array,0,14);
+	printf("done sorting\n");
+	//print_array(test_array,15);
+	print_array_int(test_array_int,15);
+	print_array_int(indices,15);
+	print_array(test_array,15);
+
+
+
+
 	Particle p = {1.0, 2.0, 3.0, 0.1};
 	printf("Particle position: (%f, %f, %f)\n", p.x, p.y, p.z);
 	printf("Particle radius: %f\n", p.radius);
