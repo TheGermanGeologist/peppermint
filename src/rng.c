@@ -1,6 +1,7 @@
 #include "rng.h"
 
 #include <limits.h> // For UINT32_MAX
+#include <math.h>
 
 
 // This was completely vibe coded
@@ -85,6 +86,32 @@ float rng_float(RNG* generator, float range_min, float range_max)
 
 
 // Vibe coding END
+
+
+
+
+float rng_normal_dist(RNGNORM* generator)
+{
+    if (generator->has_spare)
+	{
+        generator->has_spare = false;
+        return generator->spare;
+    }
+
+    float u, v, s;
+	u = v = s = 0.0;
+	while (s >= 1.0 || s == 0.0)
+	{
+        u = rng_float((RNG*)generator, -1.0f, 1.0f);
+        v = rng_float((RNG*)generator, -1.0f, 1.0f);
+        s = u * u + v * v;
+    }
+
+    float const_factor = sqrtf(-2.0f * logf(s) / s);
+    generator->spare = generator->mu + generator->sigma * v * const_factor;
+    generator->has_spare = true;
+    return generator->mu + generator->sigma * u * const_factor;
+}
 
 
 int get_rand_int(int range_min, int range_max)

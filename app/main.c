@@ -27,9 +27,14 @@ int main()
 	RNG rng1;
 	init_rng(&rng1,(int)time(NULL));
 
+	RNGNORM rng2;
+	init_rngnorm(&rng2,(int)time(NULL),0,250);
+
 	int* random_ints = (int*)allocate_vector(100000,sizeof(int));
+	float* norm_dist = (float*)allocate_vector(100000,sizeof(float));
 	for (size_t i = 0; i < 100000; i++)
 	{
+		norm_dist[i] = rng_normal_dist(&rng2);
 		random_ints[i] = rng_int(&rng1,-500,500);
 	}
 	
@@ -42,10 +47,12 @@ int main()
 
 	for (size_t i = 0; i < 100000; i++)
 	{
-		int shifted_value = random_ints[i] + 500;
-		int bin_index = (int)((double)shifted_value * 11.0 / 1001.0);
-		if (bin_index < 0) bin_index = 0;
-        if (bin_index > 10) bin_index = 10;
+		float shifted_value = norm_dist[i] + 500.0f;
+		int bin_index = (int)(shifted_value * 11.0 / 1001.0);
+		// if (bin_index < 0) bin_index = 0;
+        // if (bin_index > 10) bin_index = 10;
+		if (bin_index > 10 || bin_index < 0)
+			continue;
 		bins[bin_index] += 1;
 	}
 	
