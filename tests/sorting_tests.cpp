@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime> // Added for time() in stress test
+#include <numeric> // For std::iota
 
 // Example test case
 TEST(SortingAlgos, HandlesEmptyArray) {
@@ -243,4 +244,284 @@ TEST(SortingAlgos, RandomizedIndicesCorrectnessTest) {
         }
     }
     ASSERT_TRUE(indices_correct) << "Indices do not correctly map sorted array back to original values.";
+}
+
+// Define a simple struct for testing map_varray_to_indices
+struct TestStruct {
+    int id;
+    float val;
+    // Equality operator for ASSERT_EQ
+    bool operator==(const TestStruct& other) const {
+        return id == other.id && val == other.val;
+    }
+};
+
+// GTest printer for TestStruct to make test output readable
+std::ostream& operator<<(std::ostream& os, const TestStruct& ts) {
+    return os << "TestStruct{id=" << ts.id << ", val=" << ts.val << "f}";
+}
+
+// New test suite for array permutation functions
+class ArrayPermutationTests : public ::testing::Test {
+protected:
+    // Helper to initialize the 'visited' array, as required by the C functions
+    bool* create_and_init_visited(size_t n) {
+        bool* visited = new bool[n](); // Value-initializes to false
+        return visited;
+    }
+};
+
+// Tests for map_farray_to_indices
+TEST_F(ArrayPermutationTests, MapFloatArrayEmpty) {
+    const size_t n = 0;
+    float* arr_to_permute = nullptr;
+    int* indices = nullptr;
+    bool* visited = create_and_init_visited(n);
+
+    map_farray_to_indices(arr_to_permute, indices, visited, n);
+    SUCCEED(); // Test passes if it doesn't crash
+
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapFloatArraySingleElement) {
+    const size_t n = 1;
+    std::vector<float> arr_to_permute = {123.45f};
+    std::vector<int> permutation_indices = {0};
+    std::vector<float> expected_arr = {123.45f};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<float> working_arr = arr_to_permute;
+    map_farray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapFloatArrayReverse) {
+    const size_t n = 5;
+    std::vector<float> arr_to_permute = {10.0f, 20.0f, 30.0f, 40.0f, 50.0f};
+    std::vector<int> permutation_indices = {4, 3, 2, 1, 0}; 
+    // Expected: element at old_pos i moves to new_pos permutation_indices[i]
+    // old[0] (10.0f) -> pos 4
+    // old[1] (20.0f) -> pos 3
+    // old[2] (30.0f) -> pos 2
+    // old[3] (40.0f) -> pos 1
+    // old[4] (50.0f) -> pos 0
+    // Result: {50.0f, 40.0f, 30.0f, 20.0f, 10.0f}
+    std::vector<float> expected_arr = {50.0f, 40.0f, 30.0f, 20.0f, 10.0f};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<float> working_arr = arr_to_permute;
+    map_farray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapFloatArrayCycle) {
+    const size_t n = 4;
+    std::vector<float> arr_to_permute = {1.0f, 2.0f, 3.0f, 4.0f};
+    std::vector<int> permutation_indices = {1, 2, 0, 3}; 
+    // Permutation P = {1, 2, 0, 3}
+    // Expected: new_arr[i] = old_arr[P[i]]
+    // new_arr[0] = old_arr[P[0]] = old_arr[1] = 2.0f
+    // new_arr[1] = old_arr[P[1]] = old_arr[2] = 3.0f
+    // new_arr[2] = old_arr[P[2]] = old_arr[0] = 1.0f
+    // new_arr[3] = old_arr[P[3]] = old_arr[3] = 4.0f
+    // Result: {2.0f, 3.0f, 1.0f, 4.0f}
+    std::vector<float> expected_arr = {2.0f, 3.0f, 1.0f, 4.0f};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<float> working_arr = arr_to_permute;
+    map_farray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+// Tests for map_iarray_to_indices
+TEST_F(ArrayPermutationTests, MapIntArrayEmpty) {
+    const size_t n = 0;
+    int* arr_to_permute = nullptr;
+    int* permutation_indices = nullptr;
+    bool* visited = create_and_init_visited(n);
+    map_iarray_to_indices(arr_to_permute, permutation_indices, visited, n);
+    SUCCEED();
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapIntArraySingleElement) {
+    const size_t n = 1;
+    std::vector<int> arr_to_permute = {123};
+    std::vector<int> permutation_indices = {0};
+    std::vector<int> expected_arr = {123};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<int> working_arr = arr_to_permute;
+    map_iarray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapIntArrayReverse) {
+    const size_t n = 5;
+    std::vector<int> arr_to_permute = {10, 20, 30, 40, 50};
+    std::vector<int> permutation_indices = {4, 3, 2, 1, 0}; 
+    std::vector<int> expected_arr = {50, 40, 30, 20, 10};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<int> working_arr = arr_to_permute;
+    map_iarray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+// ...existing code...
+TEST_F(ArrayPermutationTests, MapIntArrayCycle) {
+    const size_t n = 4;
+    std::vector<int> arr_to_permute = {1, 2, 3, 4};
+    std::vector<int> permutation_indices = {1, 2, 0, 3}; 
+    // Expected: new_arr[i] = old_arr[P[i]]
+    // new_arr[0] = old_arr[1] = 2
+    // new_arr[1] = old_arr[2] = 3
+    // new_arr[2] = old_arr[0] = 1
+    // new_arr[3] = old_arr[3] = 4
+    // Result: {2, 3, 1, 4}
+    std::vector<int> expected_arr = {2, 3, 1, 4};
+    bool* visited = create_and_init_visited(n);
+
+    std::vector<int> working_arr = arr_to_permute;
+    map_iarray_to_indices(working_arr.data(), permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+// Tests for map_barray_to_indices
+TEST_F(ArrayPermutationTests, MapBoolArrayEmpty) {
+    const size_t n = 0;
+    bool* arr_to_permute = nullptr;
+    int* permutation_indices = nullptr;
+    bool* visited = create_and_init_visited(n);
+    map_barray_to_indices(arr_to_permute, permutation_indices, visited, n);
+    SUCCEED();
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapBoolArraySingleElement) {
+    const size_t n = 1;
+    bool* working_arr = new bool[n]; 
+    working_arr[0] = true;
+    std::vector<int> permutation_indices = {0};
+    bool expected_val = true;
+    bool* visited = create_and_init_visited(n);
+
+    map_barray_to_indices(working_arr, permutation_indices.data(), visited, n);
+    ASSERT_EQ(working_arr[0], expected_val);
+    
+    delete[] working_arr;
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapBoolArrayReverse) {
+    const size_t n = 4;
+    bool initial_contents[] = {true, false, true, false};
+    std::vector<int> permutation_indices = {3, 2, 1, 0}; 
+    bool expected_contents[] = {false, true, false, true};
+    
+    bool* working_arr = new bool[n];
+    for(size_t i=0; i<n; ++i) working_arr[i] = initial_contents[i];
+    bool* visited = create_and_init_visited(n);
+
+    map_barray_to_indices(working_arr, permutation_indices.data(), visited, n);
+    for(size_t i=0; i<n; ++i) {
+        ASSERT_EQ(working_arr[i], expected_contents[i]) << "at index " << i;
+    }
+    delete[] working_arr;
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapBoolArrayCycle) {
+    const size_t n = 4;
+    bool initial_contents[] = {true, false, true, false}; // T F T F
+    std::vector<int> permutation_indices = {1, 2, 0, 3}; 
+    // Expected: new_arr[i] = old_arr[P[i]]
+    // new_arr[0] = old_arr[1] = false
+    // new_arr[1] = old_arr[2] = true
+    // new_arr[2] = old_arr[0] = true
+    // new_arr[3] = old_arr[3] = false
+    // Result: {false, true, true, false}
+    bool expected_contents[] = {false, true, true, false};
+    
+    bool* working_arr = new bool[n];
+    for(size_t i=0; i<n; ++i) working_arr[i] = initial_contents[i];
+    bool* visited = create_and_init_visited(n);
+
+    map_barray_to_indices(working_arr, permutation_indices.data(), visited, n);
+    for(size_t i=0; i<n; ++i) {
+        ASSERT_EQ(working_arr[i], expected_contents[i]) << "at index " << i;
+    }
+    delete[] working_arr;
+    delete[] visited;
+}
+
+// Tests for map_varray_to_indices
+TEST_F(ArrayPermutationTests, MapGenericArrayEmpty) {
+    const size_t n = 0;
+    void* arr_to_permute = nullptr;
+    int* permutation_indices = nullptr;
+    bool* visited = create_and_init_visited(n);
+    size_t el_size = sizeof(int); 
+
+    map_varray_to_indices(arr_to_permute, permutation_indices, visited, n, el_size);
+    SUCCEED();
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapGenericArrayIntCycle) {
+    const size_t n = 3;
+    std::vector<int> arr_to_permute = {100, 200, 300};
+    std::vector<int> permutation_indices = {2, 0, 1}; 
+    // Expected: new_arr[i] = old_arr[P[i]]
+    // new_arr[0] = old_arr[2] = 300
+    // new_arr[1] = old_arr[0] = 100
+    // new_arr[2] = old_arr[1] = 200
+    // Result: {300, 100, 200}
+    std::vector<int> expected_arr = {300, 100, 200};
+    bool* visited = create_and_init_visited(n);
+    size_t el_size = sizeof(int);
+
+    std::vector<int> working_arr = arr_to_permute;
+    map_varray_to_indices(static_cast<void*>(working_arr.data()), permutation_indices.data(), visited, n, el_size);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapGenericArrayStructReverse) {
+    const size_t n = 3;
+    std::vector<TestStruct> arr_to_permute = {{1, 1.0f}, {2, 2.0f}, {3, 3.0f}};
+    std::vector<int> permutation_indices = {2, 1, 0}; // Reverse
+    // old[0]({1,1}) -> pos 2
+    // old[1]({2,2}) -> pos 1
+    // old[2]({3,3}) -> pos 0
+    // Expected: {{3, 3.0f}, {2, 2.0f}, {1, 1.0f}}
+    std::vector<TestStruct> expected_arr = {{3, 3.0f}, {2, 2.0f}, {1, 1.0f}};
+    bool* visited = create_and_init_visited(n);
+    size_t el_size = sizeof(TestStruct);
+
+    std::vector<TestStruct> working_arr = arr_to_permute;
+    map_varray_to_indices(static_cast<void*>(working_arr.data()), permutation_indices.data(), visited, n, el_size);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
+}
+
+TEST_F(ArrayPermutationTests, MapGenericArrayFloatIdentity) {
+    const size_t n = 4;
+    std::vector<float> arr_to_permute = {1.1f, 2.2f, 3.3f, 4.4f};
+    std::vector<int> permutation_indices = {0, 1, 2, 3}; // Identity
+    std::vector<float> expected_arr = {1.1f, 2.2f, 3.3f, 4.4f};
+    bool* visited = create_and_init_visited(n);
+    size_t el_size = sizeof(float);
+
+    std::vector<float> working_arr = arr_to_permute;
+    map_varray_to_indices(static_cast<void*>(working_arr.data()), permutation_indices.data(), visited, n, el_size);
+    ASSERT_EQ(working_arr, expected_arr);
+    delete[] visited;
 }
