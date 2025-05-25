@@ -35,17 +35,22 @@ int main()
 
 	float test_array[15] = {0.7f, -0.2f, 1.3f, 1.5f, 0.33f, 0.75f, 0.33f, -2.0f, 0.25f, 0.5f, 0.9f, 1.2f, 3.0f, 0.0f, 0.66f};
 	int   test_array_int[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
+	//int   test_array_int_orig[15] = {2, -15, 2, 2, 9, 0, -1, 10, 1000, -4, 3, 8, 7, 12, 21};
 	int* indices = new_index_array(15);
 	
 	
 	print_array_int(test_array_int,15);
 	adapt_sort_ki(test_array_int,indices,15);
 
+	bool* bookkeeper = (bool*)allocate_vector(15,sizeof(bool));
+	map_farray_to_indices(test_array, indices, bookkeeper, 15);
+
 	//recursive_qsort(test_array,0,14);
 	printf("done sorting\n");
 	//print_array(test_array,15);
 	print_array_int(test_array_int,15);
 	print_array_int(indices,15);
+	print_array(test_array,15);
 
 
 	// LARGE_INTEGER freq, t_start, t_end;

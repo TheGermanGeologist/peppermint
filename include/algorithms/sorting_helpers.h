@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef int KeyType;
 
@@ -57,3 +58,9 @@ int check_sorting(float* array, size_t length);
 int check_sorting_int(KeyType* array, size_t length);
 
 void check_array_identity(float* array1, float* array2, size_t length);
+
+
+void map_farray_to_indices(float* array, int* indices, bool* visited, size_t length);
+void map_iarray_to_indices(int*   array, int* indices, bool* visited, size_t length);
+void map_barray_to_indices(bool*  array, int* indices, bool* visited, size_t length);
+void map_varray_to_indices(void*  array, int* indices, bool* visited, size_t length, size_t el_size);
