@@ -38,9 +38,9 @@ int main()
 		random_ints[i] = rng_int(&rng1,-500,500);
 	}
 	
-
-	int bins[11];
-	for (size_t i = 0; i < 11; i++)
+	int bin_count = 21;
+	int* bins = (int*)allocate_vector(bin_count,sizeof(int));
+	for (size_t i = 0; i < bin_count; i++)
 	{
 		bins[i] = 0;
 	}
@@ -48,32 +48,32 @@ int main()
 	for (size_t i = 0; i < 100000; i++)
 	{
 		float shifted_value = norm_dist[i] + 500.0f;
-		int bin_index = (int)(shifted_value * 11.0 / 1001.0);
+		int bin_index = (int)floorf(shifted_value * bin_count / 1000.0f);
 		// if (bin_index < 0) bin_index = 0;
         // if (bin_index > 10) bin_index = 10;
-		if (bin_index > 10 || bin_index < 0)
+		if (bin_index > bin_count-1 || bin_index < 0)
 			continue;
 		bins[bin_index] += 1;
 	}
 	
 	int max = -10000000;
-	for (size_t i = 0; i < 11; i++)
+	for (size_t i = 0; i < bin_count; i++)
 	{
 		if (bins[i] > max)
 			max = bins[i];
 	}
 
 	// bin length: 30
-	for (size_t i = 0; i < 11; i++)
+	for (size_t i = 0; i < bin_count; i++)
 	{
 		bins[i] = bins[i] * 30 / max;
 	}
 
-	for (size_t i = 0; i < 11; i++)
+	for (size_t i = 0; i < bin_count; i++)
 	{
-		if(-5+(int)i >= 0)
+		if(-(bin_count/2)+(int)i >= 0)
 			printf(" ");
-		printf("%zi: ",-5+i);
+		printf("%zi: ",-(bin_count/2)+i);
 		for (size_t j = 0; j < bins[i]; j++)
 		{
 			printf("#");

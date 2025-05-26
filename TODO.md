@@ -2,13 +2,15 @@
 
 - [x] create a function which takes in an indices array and an array to be sorted and returns the array mapped to the indices
 
-- [ ] implement normal distribution rng (Box Muller transform)
+- [x] implement normal distribution rng (Box Muller transform)
 
 - [ ] Particle cloud shape creation I
     - [ ]  define struct to hold geometric information for
         - [ ] sphere
         - [ ] brick
         - [ ] tetrahedron
+        - [ ] toroid
+        - [ ] banana
     - [ ]  implement naive shape filling
         - [ ] spawn particles in min max range of shape
         - [ ] discard if outside
